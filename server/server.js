@@ -69,65 +69,53 @@ app.post("/assets", upload.fields([
   ]), (req, res) => {
     if(req.body.name && req.body.description && req.files.image && req.files.doc_path){
       db.all("select count(token_id) as sumCount from nftAssets",function(err,row){
-        if (err) return next(err);
-        var sumCount = row[0].sumCount
-        var tokenId = Number(sumCount)+1
-        let hashVal = f.hashFileSha256Async(`./doc/${tokenId}.xyz`,f.algorithmType.SHA256)
-        var metadata = {
-          "name": req.body.name,
-          "description": req.body.description, 
-          "external_url": "",
-          "image": site+"/images/"+tokenId+".png",
-          "tokenId" : tokenId,
-          "attributes": [
-              {
-                "trait_type": "hash", 
-                "value": hashVal
+            if (err) return next(err);
+            var sumCount = row[0].sumCount
+            var tokenId = Number(sumCount)+1
+            let hashVal = f.hashFileSha256Async(`./doc/${tokenId}.xyz`,f.algorithmType.SHA256)
+            var metadata = {
+              "name": req.body.name,
+              "description": req.body.description, 
+              "external_url": "",
+              "image": site+"/images/"+tokenId+".png",
+              "tokenId" : tokenId,
+              "attributes": [
+                  {
+                    "trait_type": "hash", 
+                    "value": hashVal
+                  }
+              ]
+            }
+            var metadataJson = JSON.stringify(metadata); 
+            var tokenIdHex = Web3.utils.toHex(tokenId).replace('0x', '')
+            var initNumber = "0000000000000000000000000000000000000000000000000000000000000000"
+            var initNumberLength = initNumber.length
+            var tokenIdHexLength = tokenIdHex.length
+            var startCoordinate = initNumberLength-tokenIdHexLength
+            var startIndex = startCoordinate
+            var endIndex = 64
+            if (endIndex < startIndex) {
+              startIndex = endIndex;
+            }
+            var a = initNumber.substring(0, startIndex);
+            var b = initNumber.substring(endIndex);
+            var hexTokenId =a + b + tokenIdHex;
+            fs.writeFile("./metadata/"+hexTokenId+".json", metadataJson, 'utf8', function (err) { 
+              if (err) { 
+                  console.log("An error occured while writing JSON Object to File."); 
+                  return console.log(err); 
               }
-          ]
-        }
-        var metadataJson = JSON.stringify(metadata); 
-        var tokenIdHex = Web3.utils.toHex(tokenId).replace('0x', '')
-        var initNumber = "0000000000000000000000000000000000000000000000000000000000000000"
-        var initNumberLength = initNumber.length
-        var tokenIdHexLength = tokenIdHex.length
-        var startCoordinate = initNumberLength-tokenIdHexLength
-        var startIndex = startCoordinate
-        var endIndex = 64
-        if (endIndex < startIndex) {
-          startIndex = endIndex;
-        }
-        var a = initNumber.substring(0, startIndex);
-        var b = initNumber.substring(endIndex);
-        var hexTokenId =a + b + tokenIdHex;
-        fs.writeFile("./metadata/"+hexTokenId+".json", metadataJson, 'utf8', function (err) { 
-          if (err) { 
-              console.log("An error occured while writing JSON Object to File."); 
-              return console.log(err); 
-          }
-          console.log("JSON file has been saved."); 
-        });
-            // const sql = `
-            //   INSERT INTO 
-            //   nftAssets(name,description,image,doc_path,metadata_path,date) 
-            //   VALUES(?,?,?,?,?,?) 
-            //   ;select last_insert_rowid();`;
-            // if(req.body.name && req.body.description && req.body.image && req.body.doc_path && req.body.metadata_path){
-            //     db.run(sql, req.body.name, req.body.description,req.body.image,req.body.doc_path,req.body.metadata_path, Math.floor(Date.now() / 1000), function(err,row){
-            //         if (err) return next(err);
-            //         res.json({code:200, message: 'Successfully completed',data:row})
-            //     });
-            // }else{
-            //     res.json({code:201, message: 'Incomplete parameters',data:[]})
-            // }
-        })
-
-        res.send({
-          body: req.body,
-          files: req.files
-        })
-
-        
+            });
+          const sql = `
+          INSERT INTO 
+          nftAssets(name,description,image,doc_path,metadata_path,date) 
+          VALUES(?,?,?,?,?,?) 
+          ;select last_insert_rowid();`;
+          db.run(sql, req.body.name, req.body.description,site+"/images/"+tokenId+".png",site+"/doc/"+tokenId+".xyz",site+"/metadata/"+hexTokenId+".json", Math.floor(Date.now() / 1000), function(err,row){
+            if (err) return next(err);
+            res.json({code:200, message: 'Successfully completed',data:row})
+          });
+      })        
     }else{
         res.send({
           body: '',
@@ -136,32 +124,6 @@ app.post("/assets", upload.fields([
     }
 })
 
-// app.post('/assets', (req, res, next) => {
-//     console.log(req.fields)
-//     console.log(req.files)
-//     return
-//     const sql = `
-//     INSERT INTO 
-//     nftAssets(name,description,image,doc_path,metadata_path,date) 
-//     VALUES(?,?,?,?,?,?) 
-//     ;select last_insert_rowid();`;
-//     if(req.body.name && req.body.description && req.body.image && req.body.doc_path && req.body.metadata_path){
-//         db.run(sql, req.body.name, req.body.description,req.body.image,req.body.doc_path,req.body.metadata_path, Math.floor(Date.now() / 1000), function(err,row){
-//             if (err) return next(err);
-//             res.json({code:200, message: 'Successfully completed',data:row})
-//         });
-//     }else{
-//         res.json({code:201, message: 'Incomplete parameters',data:[]})
-//     }
-// })
-
-// {
-//     "name":"name 1",
-//     "description":"description a 1",
-//     "image":"image 1",
-//     "doc_path":"docPath 1",
-//     "metadata_path":"metadataPath 1"
-// }
 app.put('/assets/:id', (req, res, next) => {
     console.log(1)
     if(req.body.name && req.body.description && req.body.image && req.body.doc_path && req.body.metadata_path){
