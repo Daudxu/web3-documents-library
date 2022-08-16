@@ -5,9 +5,12 @@ const multer = require('multer')
 const cors = require("cors");
 const fs = require('fs'); 
 const Web3 = require('web3')
-const Tx = require('ethereumjs-tx').Transaction
-const f = require('./hash')
+const MD5 = require('md5')
+// const Tx = require('ethereumjs-tx').Transaction
+const f = require('./utils/hash')
+const Token = require('./utils/token')
 var site = "Resource URL"  // 
+var path = require("path");
 
 const sqlite3 = require('sqlite3');
 var db = new sqlite3.Database('./database/nft.db');
@@ -37,106 +40,141 @@ const fileStorageEngine = multer.diskStorage({
 });
 const upload = multer({ storage: fileStorageEngine });
 
-app.get('/', (req, res, next) => {
-    res.send("no data")
+app.post('/login', (req, res, next) => {
+      if(req.body.name && req.body.password){
+        db.get('SELECT id FROM admin WHERE name = ? and password = ?', req.body.name, MD5(req.body.password), function(err,row){
+             if (err) return next(err);
+             if(row) {
+                res.json({code:200, message: 'Successfully completed',data:{
+                  token:Token.encrypt({id:row.id},'1d')
+                }})
+             }else{
+                res.json({code:404, message: 'There is no user data',data:[]})
+             }
+        });
+      }else{
+        res.json({code:201, message: 'Incomplete parameters',data:[]})
+      }
 })
 
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
 app.get('/assets', (req, res, next) => {
-     db.all("select * from nftAssets",function(err,row){
+    db.all("select * from nftAssets",function(err,row){
         if (err) return next(err);
          res.json({code:200, message: 'Successfully completed',data:row})
     })
 })
 
 app.get('/assets/:id', (req, res, next) => {
-      db.get('SELECT * FROM nftAssets WHERE token_id = ?', req.params.id, function(err,row){
-        if (err) return next(err);
-         res.json({code:200, message: 'Successfully completed',data:row})
-    });
+    let tokenData = Token.decrypt(req.get('authorization')); 
+    if (tokenData.token) {
+        db.get('SELECT * FROM nftAssets WHERE token_id = ?', req.params.id, function(err,row){
+          if (err) return next(err);
+          res.json({code:200, message: 'Successfully completed',data:row})
+        });
+    }else{
+      res.json({code:203, message: 'Login information has expired',data:[]})
+    }
 })
 
 app.delete('/assets/:id', (req, res, next) => {
-    if (err) return next(err);
-    db.run('DELETE FROM nftAssets WHERE token_id=?', req.params.id, function(err,row){
-        if (err) return next(err);
-        res.json({code:200, message: 'Successfully completed',data:row})
-    });
-})
-
-app.post("/assets", upload.fields([
-    { name: 'image'},
-    { name: 'doc_path'} 
-  ]), (req, res) => {
-    if(req.body.name && req.body.description && req.files.image && req.files.doc_path){
-      db.all("select count(token_id) as sumCount from nftAssets",function(err,row){
-            if (err) return next(err);
-            var sumCount = row[0].sumCount
-            var tokenId = Number(sumCount)+1
-            let hashVal = f.hashFileSha256Async(`./doc/${tokenId}.xyz`,f.algorithmType.SHA256)
-            var metadata = {
-              "name": req.body.name,
-              "description": req.body.description, 
-              "external_url": "",
-              "image": site+"/images/"+tokenId+".png",
-              "tokenId" : tokenId,
-              "attributes": [
-                  {
-                    "trait_type": "hash", 
-                    "value": hashVal
-                  }
-              ]
-            }
-            var metadataJson = JSON.stringify(metadata); 
-            var tokenIdHex = Web3.utils.toHex(tokenId).replace('0x', '')
-            var initNumber = "0000000000000000000000000000000000000000000000000000000000000000"
-            var initNumberLength = initNumber.length
-            var tokenIdHexLength = tokenIdHex.length
-            var startCoordinate = initNumberLength-tokenIdHexLength
-            var startIndex = startCoordinate
-            var endIndex = 64
-            if (endIndex < startIndex) {
-              startIndex = endIndex;
-            }
-            var a = initNumber.substring(0, startIndex);
-            var b = initNumber.substring(endIndex);
-            var hexTokenId =a + b + tokenIdHex;
-            fs.writeFile("./metadata/"+hexTokenId+".json", metadataJson, 'utf8', function (err) { 
-              if (err) { 
-                  console.log("An error occured while writing JSON Object to File."); 
-                  return console.log(err); 
-              }
-            });
-          const sql = `
-          INSERT INTO 
-          nftAssets(name,description,image,doc_path,metadata_path,date) 
-          VALUES(?,?,?,?,?,?) 
-          ;select last_insert_rowid();`;
-          db.run(sql, req.body.name, req.body.description,site+"/images/"+tokenId+".png",site+"/doc/"+tokenId+".xyz",site+"/metadata/"+hexTokenId+".json", Math.floor(Date.now() / 1000), function(err,row){
-            if (err) return next(err);
-            res.json({code:200, message: 'Successfully completed',data:row})
-          });
-      })        
-    }else{
-        res.send({
-          body: '',
-          files: req.files
-       })
-    }
-})
-
-app.put('/assets/:id', (req, res, next) => {
-    console.log(1)
-    if(req.body.name && req.body.description && req.body.image && req.body.doc_path && req.body.metadata_path){
-        const sql = `
-        UPDATE nftAssets
-        SET name=?,description=?,image=?,doc_path=?,metadata_path=?
-        WHERE token_id=?
-        `
-        db.run(sql, req.body.name, req.body.description,req.body.image,req.body.doc_path,req.body.metadata_path, req.params.id, function(err,row){
+    let tokenData = Token.decrypt(req.get('authorization')); 
+    if (tokenData.token) {
+        db.run('DELETE FROM nftAssets WHERE token_id=?', req.params.id, function(err,row){
             if (err) return next(err);
             res.json({code:200, message: 'Successfully completed',data:row})
         });
+    }else{
+      res.json({code:203, message: 'Login information has expired',data:[]})
     }
+})
+
+app.post("/assets", upload.fields([
+  { name: 'image'},
+  { name: 'doc_path'} 
+]), (req, res, next) => {
+      let tokenData = Token.decrypt(req.get('authorization')); 
+      if (tokenData.token) {
+          if(req.body.name && req.body.description && req.files.image && req.files.doc_path){
+            db.all("select count(token_id) as sumCount from nftAssets",function(err,row){
+                  if (err) return next(err);
+                  var sumCount = row[0].sumCount
+                  var tokenId = Number(sumCount)+1
+                  let hashVal = f.hashFileSha256Async(`./doc/${tokenId}.xyz`,f.algorithmType.SHA256)
+                  var metadata = {
+                    "name": req.body.name,
+                    "description": req.body.description, 
+                    "external_url": "",
+                    "image": site+"/images/"+tokenId+".png",
+                    "tokenId" : tokenId,
+                    "attributes": [
+                        {
+                          "trait_type": "hash", 
+                          "value": hashVal
+                        }
+                    ]
+                  }
+                  var metadataJson = JSON.stringify(metadata); 
+                  var tokenIdHex = Web3.utils.toHex(tokenId).replace('0x', '')
+                  var initNumber = "0000000000000000000000000000000000000000000000000000000000000000"
+                  var initNumberLength = initNumber.length
+                  var tokenIdHexLength = tokenIdHex.length
+                  var startCoordinate = initNumberLength-tokenIdHexLength
+                  var startIndex = startCoordinate
+                  var endIndex = 64
+                  if (endIndex < startIndex) {
+                    startIndex = endIndex;
+                  }
+                  var a = initNumber.substring(0, startIndex);
+                  var b = initNumber.substring(endIndex);
+                  var hexTokenId =a + b + tokenIdHex;
+                  fs.writeFile("./metadata/"+hexTokenId+".json", metadataJson, 'utf8', function (err) { 
+                    if (err) { 
+                        console.log("An error occured while writing JSON Object to File."); 
+                        return console.log(err); 
+                    }
+                  });
+                  const sql = `
+                  INSERT INTO 
+                  nftAssets(name,description,image,doc_path,metadata_path,date) 
+                  VALUES(?,?,?,?,?,?)`;
+                  db.run(sql, req.body.name, req.body.description,site+"/images/"+tokenId+".png",site+"/doc/"+tokenId+".xyz",site+"/metadata/"+hexTokenId+".json", Math.floor(Date.now() / 1000), function(err,row){
+                    if (err) return next(err);
+                    res.json({code:200, message: 'Successfully completed',data:row})
+                  });
+            })        
+          }else{
+              res.send({
+                body: '',
+                files: req.files
+            })
+          }
+      }else{
+         res.json({code:203, message: 'Login information has expired',data:[]})
+      }
+})
+
+app.put('/assets/:id', (req, res, next) => {
+  let tokenData = Token.decrypt(req.get('authorization')); 
+  if (tokenData.token) {
+      if(req.body.name && req.body.description && req.body.image && req.body.doc_path && req.body.metadata_path){
+          const sql = `
+          UPDATE nftAssets
+          SET name=?,description=?,image=?,doc_path=?,metadata_path=?
+          WHERE token_id=?
+          `
+          db.run(sql, req.body.name, req.body.description,req.body.image,req.body.doc_path,req.body.metadata_path, req.params.id, function(err,row){
+              if (err) return next(err);
+              res.json({code:200, message: 'Successfully completed',data:row})
+          });
+      }
+  }else{
+    res.json({code:203, message: 'Login information has expired',data:[]})
+  }
 })
 
 app.listen(port, function () {
