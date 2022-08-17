@@ -6,6 +6,7 @@ const cors = require("cors");
 const fs = require('fs'); 
 const Web3 = require('web3')
 const MD5 = require('md5')
+const path = require('path')
 // const Tx = require('ethereumjs-tx').Transaction
 const f = require('./utils/hash')
 const Token = require('./utils/token')
@@ -57,11 +58,8 @@ app.post('/login', (req, res, next) => {
       }
 })
 
-
 app.get("/", (req, res) => {
-  // var hostname = os.hostname();
-   console.log(os)
-  // res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 app.get('/assets', (req, res, next) => {
