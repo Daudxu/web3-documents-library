@@ -21,7 +21,7 @@ lib-cov
 # Coverage directory used by tools like istanbul
 coverage
 *.lcov
-
+strings /usr/lib64/libstdc++.so.6 | grep CXXABI
 # nyc test coverage
 .nyc_output
 
@@ -74,6 +74,8 @@ typings/
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
+# sudo strings /www/server/docker/overlay2/a05b0ec0cd1da41e91536c41cd8cf2762377971e44a22de768380ef8b1a38f52/diff/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25 | grep CXXABI
+# sudo cp /www/server/docker/overlay2/a05b0ec0cd1da41e91536c41cd8cf2762377971e44a22de768380ef8b1a38f52/diff/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25  /usr/lib64/
 
 # Next.js build output
 .next
