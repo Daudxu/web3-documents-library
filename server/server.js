@@ -12,19 +12,22 @@ const f = require('./utils/hash')
 const Token = require('./utils/token')
 var site = "https://library.web3devtest.xyz/"  
 var os = require("os");
+// app.use(express.static('public'));
 
 const sqlite3 = require('sqlite3');
 var db = new sqlite3.Database('./database/nft.db');
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(cors());
+// app.use(express.json())
+// app.use(express.urlencoded({ extended: true }))
+// app.use(cors());
+app.use(express.static('public'))
+console.log('static path:', path.join(__dirname, "/public"))
 
 const fileStorageEngine = multer.diskStorage({
     destination: (req, file, cb) => {
       if(file.mimetype === "application/pdf"){
-        cb(null, "./doc"); 
+        cb(null, "./public/doc"); 
       }else{
-        cb(null, "./images"); 
+        cb(null, "./public/images"); 
       }
     },
     filename: (req, file, cb) => {
@@ -59,7 +62,7 @@ app.post('/login', (req, res, next) => {
 })
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
 app.get('/assets', (req, res, next) => {
@@ -132,7 +135,7 @@ app.post("/assets", upload.fields([
                   var a = initNumber.substring(0, startIndex);
                   var b = initNumber.substring(endIndex);
                   var hexTokenId =a + b + tokenIdHex;
-                  fs.writeFile("./metadata/"+hexTokenId+".json", metadataJson, 'utf8', function (err) { 
+                  fs.writeFile("./public/metadata/"+hexTokenId+".json", metadataJson, 'utf8', function (err) { 
                     if (err) { 
                         console.log("An error occured while writing JSON Object to File."); 
                         return console.log(err); 
