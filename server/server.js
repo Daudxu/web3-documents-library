@@ -9,8 +9,8 @@ const MD5 = require('md5')
 // const Tx = require('ethereumjs-tx').Transaction
 const f = require('./utils/hash')
 const Token = require('./utils/token')
-var site = "Resource URL"  // 
-var path = require("path");
+var site = "https://library.web3devtest.xyz/"  
+var os = require("os");
 
 const sqlite3 = require('sqlite3');
 var db = new sqlite3.Database('./database/nft.db');
@@ -59,7 +59,9 @@ app.post('/login', (req, res, next) => {
 
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  // var hostname = os.hostname();
+   console.log(os)
+  // res.sendFile(path.join(__dirname, "index.html"));
 });
 
 app.get('/assets', (req, res, next) => {
