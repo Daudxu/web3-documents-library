@@ -1,6 +1,6 @@
 node_modules
-doc/*
-images/*
-metadata/*
 database/*
 .history
+public/doc/*.xyz
+public/images/*.png
+public/metadata/*.json

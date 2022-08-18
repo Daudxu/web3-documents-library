@@ -10,17 +10,14 @@ const path = require('path')
 // const Tx = require('ethereumjs-tx').Transaction
 const f = require('./utils/hash')
 const Token = require('./utils/token')
-var site = "https://library.web3devtest.xyz/"  
-var os = require("os");
-// app.use(express.static('public'));
-
+var site = "https://library.web3devtest.xyz"  
+// var os = require("os");
 const sqlite3 = require('sqlite3');
 var db = new sqlite3.Database('./database/nft.db');
-// app.use(express.json())
-// app.use(express.urlencoded({ extended: true }))
-// app.use(cors());
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(cors());
 app.use(express.static('public'))
-console.log('static path:', path.join(__dirname, "/public"))
 
 const fileStorageEngine = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -45,6 +42,7 @@ const fileStorageEngine = multer.diskStorage({
 const upload = multer({ storage: fileStorageEngine });
 
 app.post('/login', (req, res, next) => {
+       console.log()
       if(req.body.name && req.body.password){
         db.get('SELECT id FROM admin WHERE name = ? and password = ?', req.body.name, MD5(req.body.password), function(err,row){
              if (err) return next(err);
