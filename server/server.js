@@ -71,9 +71,8 @@ app.get('/assets', (req, res, next) => {
 })
 
 app.get('/assets/:id', (req, res, next) => {
-    let tokenData = Token.decrypt(req.get('authorization')); 
-    if (tokenData.token) {
-        db.get('SELECT * FROM nftAssets WHERE token_id = ?', req.params.id, function(err,row){
+    if (req.params.id) {
+        db.get('SELECT token_id, name, description, image, metadata_path, date FROM nftAssets WHERE token_id = ?', req.params.id, function(err,row){
           if (err) return next(err);
           res.json({code:200, message: 'Successfully completed',data:row})
         });
@@ -85,7 +84,7 @@ app.get('/assets/:id', (req, res, next) => {
 app.delete('/assets/:id', (req, res, next) => {
     let tokenData = Token.decrypt(req.get('authorization')); 
     if (tokenData.token) {
-        db.run('DELETE FROM nftAssets WHERE token_id=?', req.params.id, function(err,row){
+        db.run('DELETE token_id, name, description, image, metadata_path, date FROM nftAssets WHERE token_id=?', req.params.id, function(err,row){
             if (err) return next(err);
             res.json({code:200, message: 'Successfully completed',data:row})
         });
