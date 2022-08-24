@@ -1,3 +1,4 @@
+const dotenv = require("dotenv"); 
 const express = require('express')
 const app = express()
 const port = 3000
@@ -13,6 +14,8 @@ const Token = require('./utils/token')
 var site = "https://library.web3devtest.xyz"  
 // var os = require("os");
 const sqlite3 = require('sqlite3');
+
+
 var db = new sqlite3.Database('./database/nft.db');
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -39,6 +42,7 @@ const fileStorageEngine = multer.diskStorage({
       })
     },
 });
+
 const upload = multer({ storage: fileStorageEngine });
 
 app.post('/login', (req, res, next) => {
@@ -59,12 +63,12 @@ app.post('/login', (req, res, next) => {
       }
 })
 
-app.get("/", (req, res) => {
+app.get("", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
 app.get('/assets', (req, res, next) => {
-    db.all("select * from nftAssets",function(err,row){
+    db.all("select token_id, name, description, image, metadata_path, date from nftAssets",function(err,row){
         if (err) return next(err);
          res.json({code:200, message: 'Successfully completed',data:row})
     })
@@ -176,6 +180,84 @@ app.put('/assets/:id', (req, res, next) => {
     res.json({code:203, message: 'Login information has expired',data:[]})
   }
 })
+
+
+app.get('/prespectives', (req, res, next) => {
+  db.all("select * from prespectives",function(err,row){
+      if (err) return next(err);
+       res.json({code:200, message: 'Successfully completed',data:row})
+  })
+})
+
+
+const fileStorageEng = multer.diskStorage({
+  destination: (req, file, cb) => {
+     cb(null, "./public/img"); 
+  },
+  filename: (req, file, cb) => {
+      cb(null, Date.now()+'.png');
+  },
+});
+
+const uploadImage = multer({ storage: fileStorageEng });
+
+app.post("/prespectives", uploadImage.fields([
+  { name: 'image'}
+]), (req, res, next) => {
+      let tokenData = Token.decrypt(req.get('authorization')); 
+      if (tokenData.token) {
+          if(req.body.title && req.body.description && req.files.image.length > 0 && req.body.url){
+            console.log(req.files.image[0].destination+'/'+req.files.image[0].filename)
+            const sql = `
+                  INSERT INTO 
+                  prespectives(title,description,image,url,date) 
+                  VALUES(?,?,?,?,?)`;
+                  db.run(sql, req.body.title, req.body.description,site+'/img/'+req.files.image[0].filename,req.body.url, Math.floor(Date.now() / 1000), function(err,row){
+                    if (err) return next(err);
+                    res.json({code:200, message: 'Successfully completed',data:row})
+                  });
+          }else{
+            res.json({code:201, message: 'Incomplete parameters',data:[]})
+          }
+      }else{
+         res.json({code:203, message: 'Login information has expired',data:[]})
+        
+      }
+})
+
+
+// app.delete('/assets/:id', (req, res, next) => {
+//   let tokenData = Token.decrypt(req.get('authorization')); 
+//   if (tokenData.token) {
+//       db.run('DELETE token_id, name, description, image, metadata_path, date FROM nftAssets WHERE token_id=?', req.params.id, function(err,row){
+//           if (err) return next(err);
+//           res.json({code:200, message: 'Successfully completed',data:row})
+//       });
+//   }else{
+//     res.json({code:203, message: 'Login information has expired',data:[]})
+//   }
+// })
+
+// app.put('/assets/:id', (req, res, next) => {
+//   let tokenData = Token.decrypt(req.get('authorization')); 
+//   if (tokenData.token) {
+//       if(req.body.name && req.body.description && req.body.image && req.body.doc_path && req.body.metadata_path){
+//           const sql = `
+//           UPDATE nftAssets
+//           SET name=?,description=?,image=?,doc_path=?,metadata_path=?
+//           WHERE token_id=?
+//           `
+//           db.run(sql, req.body.name, req.body.description,req.body.image,req.body.doc_path,req.body.metadata_path, req.params.id, function(err,row){
+//               if (err) return next(err);
+//               res.json({code:200, message: 'Successfully completed',data:row})
+//           });
+//       }
+//   }else{
+//     res.json({code:203, message: 'Login information has expired',data:[]})
+//   }
+// })
+
+
 
 app.listen(port, function () {
   console.log('Express server running at http://127.0.0.1:3000')

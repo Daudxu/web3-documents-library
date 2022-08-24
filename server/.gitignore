@@ -4,3 +4,4 @@ database/*
 public/doc/*.xyz
 public/images/*.png
 public/metadata/*.json
+img
