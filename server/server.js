@@ -67,7 +67,7 @@ app.get("", (req, res) => {
 });
 
 app.get('/assets', (req, res, next) => {
-    db.all("select token_id, name, description, image, metadata_path, date from nftAssets",function(err,row){
+    db.all("select token_id, name, description, image, metadata_path, date from nftAssets order by token_id desc ",function(err,row){
         if (err) return next(err);
          res.json({code:200, message: 'Successfully completed',data:row})
     })
@@ -182,7 +182,7 @@ app.put('/assets/:id', (req, res, next) => {
 
 
 app.get('/prespectives', (req, res, next) => {
-  db.all("select * from prespectives",function(err,row){
+  db.all("select * from prespectives order by id desc",function(err,row){
       if (err) return next(err);
        res.json({code:200, message: 'Successfully completed',data:row})
   })
