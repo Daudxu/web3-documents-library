@@ -1,10 +1,13 @@
 # web3 documents library
 
-server-goang-version 
+##### Deployment description
 
-goang
+step 1:  deploy contract
 
-server
-nodejs
+step 2:  deploy server (node [The golang version is under development]) 
 
-test
+step 3:  deploy siteweb
+
+step 4:  Nginx reverse proxy
+
+step 5:  test and  release
