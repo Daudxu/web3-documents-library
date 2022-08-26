@@ -1,5 +1,5 @@
 import { api } from './http'
-// process.env.REACT_APP_API_KEY
+
 export const getAssets = async (owner, tokenAddress, chainId) => {
   return await api.get(`/v2/${owner}/nft/${tokenAddress}?chain=${chainId}&format=decimal&limit=100`)
 }
