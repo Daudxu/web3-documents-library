@@ -1,0 +1,30 @@
+{
+  "id": "3605086",
+  "name": "doc",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "29935",
+      "name": "location_fill",
+      "font_class": "locationfill",
+      "unicode": "e650",
+      "unicode_decimal": 58960
+    },
+    {
+      "icon_id": "4936985",
+      "name": "twitter",
+      "font_class": "twitter",
+      "unicode": "e882",
+      "unicode_decimal": 59522
+    },
+    {
+      "icon_id": "7239810",
+      "name": "medium",
+      "font_class": "medium",
+      "unicode": "e73d",
+      "unicode_decimal": 59197
+    }
+  ]
+}
