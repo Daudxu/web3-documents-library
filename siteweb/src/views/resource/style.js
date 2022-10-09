@@ -4,6 +4,7 @@ import { styled } from "@mui/material/styles";
 
 export const HomeContainer = styled(Container)((theme) => ({
     padding: "30px 15px",
+    minHeight: "100vh"
 }));
 
 export const GoodsPrice = styled(Typography)(() => ({

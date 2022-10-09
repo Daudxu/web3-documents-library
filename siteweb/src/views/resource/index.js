@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import CardMedia from '@mui/material/CardMedia';
 import { CardActionArea } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
-import { BASE_SITE_API } from "../../config/setting";
+import { BASE_SITE_API, DOC_PRICE } from "../../config/setting";
 import axios from "axios";
 
 // import LazyLoad from 'react-lazyload';
@@ -66,6 +66,7 @@ class Resource extends PureComponent {
             SnackbarOpen: false
         });
     }
+    
     render() {
         // const { myNftAssets } = this.props
         const { SnackbarOpen, message, libData } = this.state;
@@ -102,7 +103,7 @@ class Resource extends PureComponent {
                                    {item.description}
                                 </Typography>
                                 <GoodsPrice variant="h6" color="text.secondary" >
-                                     <span className='cl-price'>0.99 </span> MATIC
+                                     <span className='cl-price'>{DOC_PRICE} </span> MATIC
                                 </GoodsPrice>
                                 </CardContent>
                             </CardActionArea>

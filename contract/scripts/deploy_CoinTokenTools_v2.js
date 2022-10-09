@@ -1,6 +1,6 @@
 const { ethers, upgrades } = require("hardhat");
 
-// proxy address
+// proxy address （If you want to upgrade the contract, fill in your agent contract address here）
 const myContractProxyAddr = "0xC99F5d7A892D384b4B9d2f31D552237cEe795eEf"
 
 async function main() {
@@ -10,8 +10,6 @@ async function main() {
 
     console.log("myContractV2 upgraded");
 }
-// https://daudxu.github.io/docStore/metadata/{id}.json
-// 00000000000000000000000000000000000000000000000000000000000000000
 
 main()
     .then(() => process.exit(0))

@@ -5,7 +5,8 @@ async function main() {
   const MyContract = await ethers.getContractFactory("DocTokenV1");
   const myContract = await upgrades.deployProxy(
     MyContract, 
-    [],  
+    // ['990000000000000000', '0xCcbe76869e63067713204483891877d9bf84fcdc'],  
+    ["You set the mint expense unit Wei", 'your Cashier address'],  
     { initializer: 'initialize' } 
   );
 

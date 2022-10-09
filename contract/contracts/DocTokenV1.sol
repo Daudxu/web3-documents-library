@@ -5,18 +5,31 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract DocTokenV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable, ERC1155SupplyUpgradeable {
+    
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
+    event ValueChanged(uint256 newValue);
 
-    function initialize() initializer public {
-        __ERC1155_init("");
+    using SafeMath for uint256;
+    uint public mintFee;
+    address public  cashierAddress;
+    
+    function initialize(uint _mintFee, address _cashierAddress) initializer public {
+        __ERC1155_init("https://www.serenity-research.com/metadata/{id}.json");
         __Ownable_init();
         __ERC1155Supply_init();
+        mintFee = _mintFee;
+        cashierAddress = _cashierAddress;
     }
+    
+    // using SafeMath for uint256;
+    // uint public mintFee;
+    // address public  cashierAddress;
 
     function setURI(string memory newuri) public onlyOwner {
         _setURI(newuri);
@@ -24,8 +37,11 @@ contract DocTokenV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable, ER
 
     function mint(address account, uint256 id, uint256 amount, bytes memory data)
         public
-        onlyOwner
+        payable
     {
+        uint sendAmount = mintFee.mul(amount);
+        require(msg.value >= sendAmount , "Not enough MATIC sent; check price!"); 
+        payable(cashierAddress).transfer(sendAmount);
         _mint(account, id, amount, data);
     }
 
@@ -33,6 +49,7 @@ contract DocTokenV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable, ER
         public
         onlyOwner
     {
+        // payable(_address[i]).transfer(_amount[i]);
         _mintBatch(to, ids, amounts, data);
     }
 
@@ -44,4 +61,14 @@ contract DocTokenV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable, ER
     {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
+
+    function setMintFee(uint _fee) onlyOwner public {
+        mintFee = _fee;
+    }
+
+    function setCashierAddress(address _addr) onlyOwner public {
+        require(_addr != address(0));
+        cashierAddress = _addr;
+    }
+
 }

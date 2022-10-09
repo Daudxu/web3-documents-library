@@ -54,10 +54,9 @@ class Profile extends PureComponent {
                             Dashboard
                         </Typography>
                         <div className='cl-nav'>
-                        <Button variant="outlined" onClick={()=>this.handleOpenLink(1)}>Add prespectives</Button>
-                        <Button variant="outlined" onClick={()=>this.handleOpenLink(2)}>Add Resource</Button>
+                        <Button variant="outlined" onClick={()=>this.handleOpenLink(1)}>Prespectives</Button>
+                        <Button variant="outlined" onClick={()=>this.handleOpenLink(2)}>Resource</Button>
                         </div>
-                
                 </Grid>
              
             </HomeWrapper>

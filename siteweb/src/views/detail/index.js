@@ -21,12 +21,18 @@ import TextField from '@mui/material/TextField';
 import { getMetadata } from '../../utils/tools'
 // import { OpenSeaSDK, Network } from 'opensea-js'
 import Web3 from 'web3'
+// import createDOMPurify from 'dompurify'
+// import { JSDOM } from 'jsdom'
 // import LazyLoad from 'react-lazyload';
 
-import { BASE_SITE_API, DOC_TOKEN_ADDRESS, DOC_TOKEN_ABI } from '../../config/setting'
+import { BASE_SITE_API, DOC_TOKEN_ADDRESS, DOC_TOKEN_ABI, DOC_PRICE } from '../../config/setting'
 import { actionCreators } from '../common/header/store';
 import { getAssets } from '../../api/evmApi'
 import axios from "axios";
+import Parser from 'html-react-parser';
+
+// const window = (new JSDOM('')).window
+// const DOMPurify = createDOMPurify(window)
 
 const vertical = 'top'
 const horizontal = 'right'
@@ -73,7 +79,8 @@ class Profile extends PureComponent {
          if(account){
             var webObj = new Web3(walletProvider)
             var myContract = new webObj.eth.Contract(DOC_TOKEN_ABI, DOC_TOKEN_ADDRESS)
-            await myContract.methods.mint(account, match.params.tokenId, 1, []).send({from:account,value:100000000000000000*1}).then(()=>{
+             var price = await Web3.utils.toWei(DOC_PRICE, 'ether')
+            await myContract.methods.mint(account, match.params.tokenId, 1, []).send({from:account,value:(price*1)}).then(()=>{
                 this.setState({
                     SnackbarOpen: true,
                     message: "success"
@@ -81,7 +88,7 @@ class Profile extends PureComponent {
                   var _this = this
                   this.props.upodateMyAssets(account, chainId)
                   setTimeout(()=>{
-                    _this.props.history.push('/profile')
+                    _this.props.history.push('/academy')
                   }, 3000)
             }).catch(err=>{
                 this.setState({
@@ -159,6 +166,13 @@ class Profile extends PureComponent {
             price: data
         });
     }
+
+    htmlDecode(content) {
+        let e = document.createElement('div');
+        e.innerHTML = content;
+        return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+    }
+
     render() {
         const { asset, open, price, SnackbarOpen, message } = this.state
         
@@ -195,14 +209,17 @@ class Profile extends PureComponent {
                     <Typography variant="body2" color="text.secondary">
                         {/* {asset.collection.name} */}
                     </Typography>
-                    <Typography gutterBottom variant="h6" component="div" className='cl-nftname'>
+                    <Typography gutterBottom variant="h6" component="div" className='cl-nftname' >
                                   {asset.name}
                     </Typography>
+         
                     <GoodsPrice variant="h6" color="text.secondary" >
-                                     <span className='cl-price'>0.99 </span> MATIC
+                                     <span className='cl-price'>{DOC_PRICE} </span> MATIC
                     </GoodsPrice>
-                    <Button variant="contained"   onClick={()=>this.handleCliockBuyNow()}>Buy now</Button>
-             
+                    <Button  variant="contained"   onClick={()=>this.handleCliockBuyNow()}>Buy now</Button>
+                    <Typography sx={{ paddingTop: `30px` }} gutterBottom variant="body" component="div" className='cl-nftname' >
+                       {asset.content? Parser(asset.content) : ""}
+                    </Typography>
                     </Grid>
                  
                 </Grid>

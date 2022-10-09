@@ -6,6 +6,9 @@ export const HomeWrapper = styled.div`
   margin:0 auto;
   display:flex ;
   height: 100vh;
+  .cl-editorStyle {
+    /* border: 1px solid #000000 ; */
+  }
   .cl-grid {
     padding:24px ;
     display:flex ;
@@ -14,9 +17,10 @@ export const HomeWrapper = styled.div`
   .cl-form {
     display: flex;
     flex-direction: column;
+    
   }
   .cl-text {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
   .cl-nftname {
     height:64px ;
@@ -47,4 +51,9 @@ export const HomeWrapper = styled.div`
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
   }
+.demo-editor {
+  height: 300px;
+    border: solid;
+}
+
 `

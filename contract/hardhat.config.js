@@ -15,10 +15,10 @@ module.exports = {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.POLYGON_TEST_API_KEY}`,
       accounts: [process.env.POLYGON_TEST_PRI_KEY],
     },
-    // polygonmain: {
-    //   url: `https://polygon-mainnet.g.alchemy.com/v2/${process.env.POLYGON_MAIN_API_KEY}`,
-    //   accounts: [process.env.POLYGON_MAIN_PRI_KEY],
-    // },
+    polygonmain: {
+      url: `https://polygon-mainnet.g.alchemy.com/v2/${process.env.POLYGON_MAIN_API_KEY}`,
+      accounts: [process.env.POLYGON_MAIN_PRI_KEY],
+    },
     test: {
       url: `http://127.0.0.1:8545`,
       accounts: [process.env.LOCAL_PRI_KEY],
