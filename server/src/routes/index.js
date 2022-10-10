@@ -8,6 +8,8 @@ const subgraph = require('./subgraph')
 const api = require('./api')
 const course = require('./course')
 const video = require('./video')
+const spider = require('./spider')
+const crontab = require('./crontab')
 // const productList = require('./assets')
 
 module.exports = (app) => {
@@ -17,9 +19,6 @@ module.exports = (app) => {
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
     res.header("X-Powered-By", 'express 4.17.1')
-    // res.header("Content-Type", "application/json;charset=utf-8");
-    // cache （one day：60x60x24=86400 ）
-    // res.setHeader('Cache-Control', 'public, max-age=86400')
     next();
   })
 
@@ -30,6 +29,8 @@ module.exports = (app) => {
   app.use('/api',  api)
   app.use('/course',  course)
   app.use('/video',  video)
+  app.use('/spider',  spider)
+  app.use('/crontab',  crontab)
 //   app.use('/*', (req, res) => {
 //     res.send('404 NOT FOUND')
 //   })
