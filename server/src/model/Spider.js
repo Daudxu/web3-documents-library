@@ -63,7 +63,9 @@ module.exports = {
   //   "name"	TEXT NOT NULL,
   //   "description"	TEXT,
   //   "script_path"	TEXT NOT NULL,
+  //   "environment_version"	TEXT,
+  //   "dependent_modules"	TEXT,
   //   "create_time"	TEXT NOT NULL,
   //   "update_time"	TEXT,
   //   PRIMARY KEY("id" AUTOINCREMENT)
-  // )
+  // );

@@ -39,13 +39,10 @@ module.exports = {
             let sql = SpiderModel.addSpider(formData)
             queryRunSQL(sql, async (err, data) => { 
                 if (err) return next(err);
-                fs.writeFile(path.resolve(__dirname, "../../Spider/"+req.body.name)+"/run.sh",'cd '+path.resolve(__dirname, "../../Spider/"+req.body.name)+'\n  pyhon '+ ,function(err){
-                    if(err){
-                        return console.log('文件写入失败！'+err.message)
-                    }
-                    console.log('文件写入成功！')
+                fs.writeFile(path.resolve(__dirname, "../../Spider/"+req.body.name)+"/run.sh",'cd '+path.resolve(__dirname, "../../Spider/"+req.body.name)+'\n pyhon '+ req.files.script_path[0].originalname + '\n date +"%Y-%m-%d %H:%M:%S', function(err){
+                  if (err) return next(err);
+                  res.json(dataFormat(data, 200))
                 })
-                res.json(dataFormat(data, 200))
             })
         }else{
           res.json(dataFormat([], 201))
