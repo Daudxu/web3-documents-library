@@ -1,39 +1,64 @@
 const express = require('express')
+const fs = require('fs')
+const path = require('path')
 const router = express.Router()
-const subgraphController = require('../controller/Subgraph')
+const spiderController = require('../controller/Spider')
 // const { jsonParser } = require('../utils/postSetting')
 const multer = require('multer')
-const subgraphModel = require('../model/Subgraph')
-const { queryGetSQL} = require('../../config/connection')
+const spiderModel = require('../model/Spider')
+
+const checkDir = (path) => {
+  return new Promise((resolve, reject) => {
+      fs.stat(path, (err, stats) => {
+          if(err){
+              resolve(false);
+          }else{
+              resolve(stats);
+          }
+      })
+  })
+}
+
+const mkdir = (path) => {
+  return new Promise((resolve, reject) => {
+      fs.mkdir(path, err => {
+          if(err){
+              resolve(false);
+          }else{
+              resolve(true);
+          }
+      })
+  })
+}
 
 const fileStorageEng = multer.diskStorage({
-    destination: (req, file, cb) => {
-       cb(null, "./public/subgraph"); 
+    destination: async (req, file, cb) => {
+     const projectPath = path.resolve(__dirname, "../../Spider/"+req.body.name);
+     var isExists =  await checkDir(projectPath)
+     if(isExists) {
+      cb(null, "./Spider/"+req.body.name); 
+     }else{
+        var isMkdir =  await mkdir(projectPath)
+        if(isMkdir){
+          cb(null, "./Spider/"+req.body.name); 
+        }
+     }
     },
     filename: (req, file, cb) => {
-          if(req.params.id){
-            cb(null, Number(req.params.id)+'.png');
-          }else{
-            let subgraphSql = subgraphModel.getSubgraphCount()
-            queryGetSQL(subgraphSql, async (err, data) => { 
-                if (err) return next(err);
-                var sumCount =data.sumCount;
-                cb(null, Number(sumCount)+1+'.png');
-           })
-          }
+       cb(null, file.originalname)
     },
 });
 const uploadImage = multer({ storage: fileStorageEng });
 
-router.get('/', subgraphController.getSubgraph)
-router.get('/:id', subgraphController.getSubgraphById)
+router.get('/', spiderController.getSpider)
+router.get('/:id', spiderController.getSpiderById)
 router.post('/', uploadImage.fields([
-    { name: 'image'}
-  ]), subgraphController.addSubgraph)
+    { name: 'script_path'}
+  ]), spiderController.addSpider)
 router.put('/:id', uploadImage.fields([
-    { name: 'image'}
-  ]), subgraphController.updateSubgraph)
-router.delete('/:id',subgraphController.deleteSubgraph)
+    { name: 'script_path'}
+  ]), spiderController.updateSpider)
+router.delete('/:id',spiderController.deleteSpider)
 
 module.exports = router
 

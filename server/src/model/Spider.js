@@ -1,17 +1,17 @@
 module.exports = {
-    getAllSubgraph: () => {
-      return `select * from subgraph_api order by id desc`
+    getAllSpider: () => {
+      return `select * from Spider order by id desc`
     },
-    getSubgraphById: (id) => {
-      return `SELECT * FROM subgraph_api WHERE id = ${id}`
+    getSpiderById: (id) => {
+      return `SELECT * FROM Spider WHERE id = ${id}`
     },
-    getSubgraphByApikey: (apikey) => {
-      return `SELECT apiurl, apisql FROM subgraph_api WHERE apikey = '${apikey}' `
+    getSpiderByApikey: (apikey) => {
+      return `SELECT apiurl, apisql FROM Spider WHERE apikey = '${apikey}' `
     },
-    getSubgraphCount: () => {
-      return `select count(id) as sumCount from subgraph_api`
+    getSpiderCount: () => {
+      return `select count(id) as sumCount from Spider`
     },
-    addSubgraph: (parmas) => {
+    addSpider: (parmas) => {
       try {
           let filter = ''
           let val = ''
@@ -22,12 +22,12 @@ module.exports = {
             filter += `'${e}' ${point}`
             val += `'${values[i]}' ${point}`
           })
-          return `INSERT INTO subgraph_api (  ${filter} ) VALUES ( ${val} ) `
+          return `INSERT INTO Spider (  ${filter} ) VALUES ( ${val} ) `
       } catch (e) {
         console.log(e)
       }
     },
-    updateSubgraph: (parmas, id) => {
+    updateSpider: (parmas, id) => {
         let filter = ''
         var keys = Object.keys(parmas)
         var values = Object.values(parmas)
@@ -35,14 +35,35 @@ module.exports = {
           let point = (i+1) !== keys.length ? ',' : ''
           filter += `'${e}'='${values[i]}'${point}`
         })
-        return `UPDATE subgraph_api
+        return `UPDATE Spider
                 SET ${filter} 
                 WHERE id=${id} ;`
     },
-    delSubgraphById: (id) => {
-      return `DELETE FROM subgraph_api where id='${id}' `
+    deleteSpiderById: (id) => {
+      return `DELETE FROM Spider where id='${id}' `
     }
   }
   
   
-  
+  // CREATE TABLE "crontab" (
+  //   "id"	INTEGER NOT NULL UNIQUE,
+  //   "name"	TEXT NOT NULL,
+  //   "description"	TEXT,
+  //   "command"	TEXT NOT NULL,
+  //   "comment"	NUMERIC NOT NULL,
+  //   "execution_cycle"	REAL NOT NULL,
+  //   "create_time"	NUMERIC NOT NULL,
+  //   "update_time"	TEXT,
+  //   PRIMARY KEY("id" AUTOINCREMENT)
+  // )
+
+
+  // CREATE TABLE "spider" (
+  //   "id"	INTEGER NOT NULL UNIQUE,
+  //   "name"	TEXT NOT NULL,
+  //   "description"	TEXT,
+  //   "script_path"	TEXT NOT NULL,
+  //   "create_time"	TEXT NOT NULL,
+  //   "update_time"	TEXT,
+  //   PRIMARY KEY("id" AUTOINCREMENT)
+  // )

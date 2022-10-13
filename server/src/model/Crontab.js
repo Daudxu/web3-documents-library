@@ -1,17 +1,14 @@
 module.exports = {
-    getAllSubgraph: () => {
-      return `select * from subgraph_api order by id desc`
+    getAllCrontab: () => {
+      return `select * from crontab order by id desc`
     },
-    getSubgraphById: (id) => {
-      return `SELECT * FROM subgraph_api WHERE id = ${id}`
+    getCrontabById: (id) => {
+      return `SELECT * FROM crontab WHERE id = ${id}`
     },
-    getSubgraphByApikey: (apikey) => {
-      return `SELECT apiurl, apisql FROM subgraph_api WHERE apikey = '${apikey}' `
+    getCrontabCount: () => {
+      return `select count(id) as sumCount from crontab`
     },
-    getSubgraphCount: () => {
-      return `select count(id) as sumCount from subgraph_api`
-    },
-    addSubgraph: (parmas) => {
+    addCrontab: (parmas) => {
       try {
           let filter = ''
           let val = ''
@@ -22,12 +19,12 @@ module.exports = {
             filter += `'${e}' ${point}`
             val += `'${values[i]}' ${point}`
           })
-          return `INSERT INTO subgraph_api (  ${filter} ) VALUES ( ${val} ) `
+          return `INSERT INTO crontab (  ${filter} ) VALUES ( ${val} ) `
       } catch (e) {
         console.log(e)
       }
     },
-    updateSubgraph: (parmas, id) => {
+    updateCrontab: (parmas, id) => {
         let filter = ''
         var keys = Object.keys(parmas)
         var values = Object.values(parmas)
@@ -35,12 +32,12 @@ module.exports = {
           let point = (i+1) !== keys.length ? ',' : ''
           filter += `'${e}'='${values[i]}'${point}`
         })
-        return `UPDATE subgraph_api
+        return `UPDATE crontab
                 SET ${filter} 
                 WHERE id=${id} ;`
     },
-    delSubgraphById: (id) => {
-      return `DELETE FROM subgraph_api where id='${id}' `
+    deleteCrontabById: (id) => {
+      return `DELETE FROM crontab where id='${id}' `
     }
   }
   

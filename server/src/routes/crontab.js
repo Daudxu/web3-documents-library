@@ -1,9 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const subgraphController = require('../controller/Subgraph')
+const crontabController = require('../controller/Crontab')
 // const { jsonParser } = require('../utils/postSetting')
 const multer = require('multer')
-const subgraphModel = require('../model/Subgraph')
+const crontabModel = require('../model/Crontab')
 const { queryGetSQL} = require('../../config/connection')
 
 const fileStorageEng = multer.diskStorage({
@@ -14,7 +14,7 @@ const fileStorageEng = multer.diskStorage({
           if(req.params.id){
             cb(null, Number(req.params.id)+'.png');
           }else{
-            let subgraphSql = subgraphModel.getSubgraphCount()
+            let subgraphSql = crontabModel.getCrontabCount()
             queryGetSQL(subgraphSql, async (err, data) => { 
                 if (err) return next(err);
                 var sumCount =data.sumCount;
@@ -25,15 +25,15 @@ const fileStorageEng = multer.diskStorage({
 });
 const uploadImage = multer({ storage: fileStorageEng });
 
-router.get('/', subgraphController.getSubgraph)
-router.get('/:id', subgraphController.getSubgraphById)
+router.get('/', crontabController.getCrontab)
+router.get('/:id', crontabController.getCrontabById)
 router.post('/', uploadImage.fields([
     { name: 'image'}
-  ]), subgraphController.addSubgraph)
+  ]), crontabController.addCrontab)
 router.put('/:id', uploadImage.fields([
     { name: 'image'}
-  ]), subgraphController.updateSubgraph)
-router.delete('/:id',subgraphController.deleteSubgraph)
+  ]), crontabController.updateCrontab)
+router.delete('/:id',crontabController.deleteCrontab)
 
 module.exports = router
 
