@@ -17,6 +17,8 @@ const { createHttpLink } = require('apollo-link-http');
 const {ApolloClient, InMemoryCache} = ApolloBoost 
 const gql = require("graphql-tag");
 
+
+
 var db = new sqlite3.Database('./database/nft.db');
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -187,7 +189,7 @@ app.post("/prespectives", uploadImage.fields([
             const sql = `
                   INSERT INTO 
                   prespectives(title,description,image,url,date,sort) 
-                  VALUES(?,?,?,?,?)`;
+                  VALUES(?,?,?,?,?,?)`;
                   db.run(sql, req.body.title, req.body.description,site+'/img/'+req.files.image[0].filename,req.body.url, Math.floor(Date.now() / 1000, req.body.sort?req.body.sort:0), function(err,row){
                     if (err) return next(err);
                     res.json({code:200, message: 'Successfully completed',data:row})
@@ -318,7 +320,7 @@ app.put("/prespectives/:id", uploadPrespectivesImage.fields([
       if (tokenData.token) {
           if(typeof(req.files.image) !== "undefined") {
               if( req.params.id && req.body.title && req.body.description && typeof(req.files.image) !== "undefined" && req.body.url){
-                  const sql = `UPDATE prespectives SET title=?,description=?,image=?,url=?,update_date=?,sort=? WHERE id=?`;
+                  const sql = `UPDATE prespectives SET title=?,description=?,image=?,url=?,update_date=?,sort=?   WHERE id=?`;
                     db.run(sql, req.body.title, req.body.description,site+'/img/'+req.files.image[0].filename,req.body.url, Math.floor(Date.now() / 1000), req.body.sort?req.body.sort:0, req.params.id, function(err,row){
                       if (err) return next(err);
                       res.json({code:200, message: 'Successfully completed',data:row})
@@ -328,9 +330,9 @@ app.put("/prespectives/:id", uploadPrespectivesImage.fields([
               }
           }else{
               if( req.params.id && req.body.title && req.body.description  && req.body.url){
-                const sql = `UPDATE prespectives SET title=?,description=?,image=?,url=?,update_date=?,sort=?   WHERE id=?`;
-                db.run(sql, req.body.title, req.body.description,site+'/img/'+req.files.image[0].filename,req.body.url, Math.floor(Date.now() / 1000), req.body.sort?req.body.sort:0, req.params.id, function(err,row){
-                  if (err) return next(err);
+                const sql = `UPDATE prespectives SET title=?,description=?,url=?,update_date=?,sort=?  WHERE id=?`;
+                  db.run(sql, req.body.title, req.body.description,req.body.url, Math.floor(Date.now() / 1000),req.body.sort?req.body.sort:0,req.params.id, function(err,row){
+                    if (err) return next(err);
                     res.json({code:200, message: 'Successfully completed',data:row})
                   });
               }else{
@@ -366,6 +368,7 @@ app.get('/api/:apikey', async (req, res, next) => {
 app.get('/subgraph', (req, res, next) => {
   db.all('SELECT id, name, description, apiurl, apisql, apikey, create_date FROM subgraph_api', async (err,row)=>{
       if (err) return next(err);
+      console.log(111111111)
        res.json({code:200, message: 'Successfully completed',data:row})
   })
 })
@@ -405,10 +408,11 @@ app.post('/subgraph', uploadPrespectivesImage.fields([
   }
 })
 
-app.put('/subgraph/:id', async (req, res, next) => {
+app.put('/subgraph/:id', uploadPrespectivesImage.fields([
+  { name: 'image'}
+]), (req, res, next) => {
   let tokenData = Token.decrypt(req.get('authorization')); 
   if (tokenData.token) {
-
     if (req.params.id && req.body.name && req.body.description && req.body.apiurl && req.body.apisql) {
       const dateTime = Math.floor(Date.now() / 1000)
       const sql = `UPDATE subgraph_api SET name=?,description=?,apiurl=?,apisql=?,update_date=?  WHERE id=?`;
